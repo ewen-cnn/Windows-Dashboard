@@ -21,6 +21,7 @@ export function useClock() {
     }).format(now);
 
     return {
+      now,
       time: new Intl.DateTimeFormat("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",

@@ -44,7 +44,8 @@ export const defaultWidgets: WidgetModule[] = [
     glyph: "WC",
     privacy: "local",
     service: "Horloge",
-    content: "Cape Town +01:00; Tokyo +07:00; Washington -06:00; London +01:00",
+    content:
+      "Cape Town=Africa/Johannesburg; Tokyo=Asia/Tokyo; Washington=America/New_York; London=Europe/London",
   },
   {
     id: "weather",

@@ -49,13 +49,46 @@ function CalendarWidget({ items }: { items: string[] }) {
   );
 }
 
+type CityClock = {
+  city: string;
+  time: string;
+  offset: string;
+};
+
+// Content format: "City=IANA/Zone; City=IANA/Zone".
+function toCityClock(item: string, now: Date): CityClock {
+  const [rawCity, timeZone] = item.split("=").map((part) => part.trim());
+  const city = rawCity || item;
+
+  if (!timeZone) {
+    return { city, time: "--:--", offset: "" };
+  }
+
+  try {
+    const time = new Intl.DateTimeFormat("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone,
+    }).format(now);
+    const offset =
+      new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "shortOffset" })
+        .formatToParts(now)
+        .find((part) => part.type === "timeZoneName")?.value ?? "";
+
+    return { city, time, offset };
+  } catch {
+    // Unknown time zone identifier: keep the card instead of crashing the grid.
+    return { city, time: "--:--", offset: timeZone };
+  }
+}
+
 function WorldClockWidget({ items }: { items: string[] }) {
+  const { now } = useClock();
+
   return (
     <div className="world-clock-widget">
       {items.slice(0, 4).map((item) => {
-        const parts = item.split(" ");
-        const offset = parts[parts.length - 1] ?? "Today";
-        const city = parts.slice(0, -1).join(" ");
+        const { city, time, offset } = toCityClock(item, now);
 
         return (
           <div className="clock-face-card" key={item}>
@@ -63,7 +96,9 @@ function WorldClockWidget({ items }: { items: string[] }) {
               <i />
             </span>
             <b>{city}</b>
-            <small>{offset ?? "Today"}</small>
+            <small>
+              {time} {offset}
+            </small>
           </div>
         );
       })}
